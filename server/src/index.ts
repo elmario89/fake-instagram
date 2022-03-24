@@ -1,6 +1,7 @@
 import express, {Request,Response,Application} from 'express';
 import dbConfig from './config/db.config';
 import db from './models';
+import routes from './routes/auth.routes';
 
 const cors = require("cors");
 
@@ -15,21 +16,21 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.listen(PORT, ():void => {
-    console.log(`Server Running here 👉 https://localhost:${PORT}`);
-});
-
 app.get("/api", (req:Request, res:Response):void => {
     res.json({ message: "Hello from server!" });
 });
 
-const Role = db.role;
+const User = db.user;
 
 db.mongoose
     .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`)
     .then(() => {
         console.log('Connected to mongodb');
         initial();
+
+        app.listen(PORT, ():void => {
+            console.log(`Server Running here 👉 https://localhost:${PORT}`);
+        });
     })
     .catch((err: Error) => {
         console.error('Connection error ', err);
@@ -37,32 +38,21 @@ db.mongoose
     })
 
 function initial() {
-    Role.estimatedDocumentCount((err: Error, count: number) => {
+    User.estimatedDocumentCount((err: Error, count: number) => {
         if (!err && count === 0) {
-            new Role({
-                name: "user"
+            new User({
+                userName: "Mikhail",
+                email: "urine89@mail.ru",
+                password: "221221",
+                posts: [{ text: "Some post is going to be here!"}]
             }).save((err: unknown) => {
                 if (err) {
                     console.log("error", err);
                 }
-                console.log("added 'user' to roles collection");
-            });
-            new Role({
-                name: "moderator"
-            }).save((err: unknown) => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("added 'moderator' to roles collection");
-            });
-            new Role({
-                name: "admin"
-            }).save((err: unknown) => {
-                if (err) {
-                    console.log("error", err);
-                }
-                console.log("added 'admin' to roles collection");
+                console.log("Added user with posts!");
             });
         }
     });
 }
+
+routes(app);
