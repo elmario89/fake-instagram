@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const users = require('../models/user.model');
 
-import UserViewModel from "../interfaces/user-register.interface";
+import UserViewModel from "../interfaces/add-user.interface";
 
 import { Request, Response } from 'express';
 import { iUser } from "../models/user.model";
@@ -13,7 +13,6 @@ export interface iUserRequest extends Request {
 
 module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userName, email, password, posts } = req.body as UserViewModel;
-    console.log('we are in middleware');
 
     // Validate user input
     if (!(password && email && userName)) {
@@ -22,7 +21,7 @@ module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
 
     // check if user already exist
     // Validate if user exist in our database
-    const userExists = await users.findOne({ email: email });
+    const userExists = await users.findOne({ email });
     if (userExists) {
         return res.status(409).send('User Already Exist. Please Login');
     }
@@ -36,11 +35,12 @@ module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
         email: email.toLowerCase(), // sanitize: convert email to lowercase
         password: encryptedPassword,
         posts,
+        creationDate: new Date(),
     });
 
     // Create token
     user.token = jwt.sign(
-        { user_id: user._id, email },
+        { _id: user._id, email },
         process.env.JWT_KEY,
         {
             expiresIn: '24h',
