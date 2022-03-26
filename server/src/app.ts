@@ -1,4 +1,4 @@
-const express = require('express');
+import express from 'express';
 const cors = require('cors');
 
 require('./config/db.config').connect();
@@ -11,4 +11,7 @@ const app = express();
 app.use(cors(corsOptions));
 app.use(express.json());
 
-export default app;
+//routes
+require('./controllers/auth.controller')(app);
+
+module.exports = app;

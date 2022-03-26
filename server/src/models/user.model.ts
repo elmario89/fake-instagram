@@ -1,7 +1,10 @@
-import mongoose, { Schema } from 'mongoose';
-import { iPost, PostSchema } from './post.model';
+const mongoose = require('mongoose');
+const PostSchema = require('./post.model');
+import { Schema } from 'mongoose';
 
-interface iUser {
+import { iPost } from './post.model';
+
+export interface iUser {
     userName: string;
     email: string;
     password: string;
@@ -31,4 +34,4 @@ const UserSchema = new Schema<iUser>({
     }
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('user', UserSchema);

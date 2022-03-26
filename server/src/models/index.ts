@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import user from './user.model';
+const user = require('./user.model');
 
 mongoose.Promise = global.Promise;
 

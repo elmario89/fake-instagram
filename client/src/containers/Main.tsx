@@ -5,7 +5,6 @@ function Main() {
 
     const login = async (data = {}) => {
         // Default options are marked with *
-        console.log(JSON.stringify(data));
         const response = await fetch('http://localhost:3001/api/auth/signIn', {
             method: 'POST', // *GET, POST, PUT, DELETE, etc.
             mode: 'cors', // no-cors, *cors, same-origin
@@ -22,17 +21,6 @@ function Main() {
         return await response.json(); // parses JSON response into native JavaScript objects
     }
 
-    // const login = () => {
-    //     fetch("http://localhost:3001/api/auth/signIn", {
-    //         method: 'POST',
-    //         headers: {
-    //             'Content-Type': 'applications/json'
-    //         },
-    //         body: {userName: value }
-    //     })
-    //         .then((res) => console.log(res.json()))
-    // }
-
     return (
        <div className="main">
            <label htmlFor="login">
@@ -40,7 +28,7 @@ function Main() {
                <input onChange={e => setValue(e.target.value)} name="login" id="login" type="text" />
            </label>
 
-           <button onClick={() => login({userName: value, password: '221221' })}>post</button>
+           <button onClick={() => login({userName: value, password: '221221', email: 'elmario891@gmail.com' })}>post</button>
        </div>
     );
 }

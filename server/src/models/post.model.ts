@@ -4,6 +4,6 @@ export interface iPost {
     text: string;
 }
 
-export const PostSchema = new Schema<iPost>({
+module.exports = new Schema<iPost>({
     text: String
 });
