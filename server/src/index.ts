@@ -1,49 +1,27 @@
-import express, {Request,Response,Application} from 'express';
-import dbConfig from './config/db.config';
-import db from './models';
-import routes from './routes/auth.routes';
+const http = require("http");
+const app = require("./app");
+const bcrypt = require('bcryptjs');
+const User = require('./models/user.model');
 
-const cors = require("cors");
+const port = process.env.PORT || 3001;
 
-const app:Application = express();
-const PORT = process.env.PORT || 3001;
+const server = http.createServer(app);
 
-const corsOptions = {
-    origin: "http://localhost:3000"
-};
-
-app.use(cors(corsOptions));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-app.get("/api", (req:Request, res:Response):void => {
-    res.json({ message: "Hello from server!" });
+// server listening
+server.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+    initial();
 });
 
-const User = db.user;
-
-db.mongoose
-    .connect(`mongodb://${dbConfig.HOST}:${dbConfig.PORT}/${dbConfig.DB}`)
-    .then(() => {
-        console.log('Connected to mongodb');
-        initial();
-
-        app.listen(PORT, ():void => {
-            console.log(`Server Running here 👉 https://localhost:${PORT}`);
-        });
-    })
-    .catch((err: Error) => {
-        console.error('Connection error ', err);
-        process.exit();
-    })
-
 function initial() {
-    User.estimatedDocumentCount((err: Error, count: number) => {
+    User.estimatedDocumentCount(async (err: Error, count: number) => {
         if (!err && count === 0) {
+            const encryptedPassword = await bcrypt.hash("221221", 10);
+
             new User({
                 userName: "Mikhail",
                 email: "urine89@mail.ru",
-                password: "221221",
+                password: encryptedPassword,
                 posts: [{ text: "Some post is going to be here!"}]
             }).save((err: unknown) => {
                 if (err) {
@@ -54,5 +32,3 @@ function initial() {
         }
     });
 }
-
-routes(app);

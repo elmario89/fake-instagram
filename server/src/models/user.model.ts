@@ -5,6 +5,7 @@ interface iUser {
     userName: string;
     email: string;
     password: string;
+    token: string;
     posts: {
         type: iPost;
         default: [];
@@ -24,11 +25,10 @@ const UserSchema = new Schema<iUser>({
         type: String,
         required: true
     },
+    token: String,
     posts:{
         type: [PostSchema]
     }
 });
 
-const User = mongoose.model('User', UserSchema);
-
-export default User;
+module.exports = mongoose.model('User', UserSchema);
