@@ -9,8 +9,7 @@ import iGetUserViewModel from "../interfaces/get-user-view-model.interface";
 import iAddPost from "../interfaces/add-post.interface";
 import { iUserRequest } from "../interfaces/user-request.interface";
 
-
-module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
+module.exports.add = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userId, post } = req.body as iAddPost;
 
     const { posts } = await users.findOne({ _id: userId });
@@ -30,5 +29,12 @@ module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
 
     req.user = user;
 
+    next();
+};
+
+module.exports.get = async (req: iUserRequest, res: Response, next: () => void) => {
+    console.log('get');
+    console.log(req.params.userId);
+    console.log(req.params.postId);
     next();
 };

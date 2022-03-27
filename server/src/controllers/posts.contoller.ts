@@ -9,9 +9,17 @@ import { iPost } from '../models/post.model';
 import { iUser } from '../models/user.model';
 
 module.exports = function(app: Application) {
-    app.post('/api/posts/add', [jwt, post], async (req: iUserRequest, res: Response) => {
+    app.post('/api/posts/add', [jwt, post.add], async (req: iUserRequest, res: Response) => {
         try {
             return res.status(200).json(req.body);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    app.get('/api/posts/:userId/:postId', [jwt, post.get], async (req: iUserRequest, res: Response) => {
+        try {
+            return res.status(200).json({ post: 'hui'});
         } catch (err) {
             console.log(err);
         }
