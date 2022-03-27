@@ -35,7 +35,7 @@ const UserSchema = new Schema<iUser>({
         required: true
     },
     token: String,
-    posts:{
+    posts: {
         type: [PostSchema]
     }
 });

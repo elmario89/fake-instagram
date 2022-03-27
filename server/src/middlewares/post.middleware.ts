@@ -1,0 +1,34 @@
+import getUser from "../interfaces/get-user.interface";
+
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
+const users = require('../models/user.model');
+
+import { Request, Response } from 'express';
+import iGetUserViewModel from "../interfaces/get-user-view-model.interface";
+import iAddPost from "../interfaces/add-post.interface";
+import { iUserRequest } from "../interfaces/user-request.interface";
+
+
+module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
+    const { userId, post } = req.body as iAddPost;
+
+    const { posts } = await users.findOne({ _id: userId });
+    const user = await users.findOneAndUpdate(
+        { _id: userId },
+        {
+            posts: [
+                ...posts,
+                {
+                    ...post,
+                    creationDate: new Date()
+                }
+            ]
+        },
+        { new: true }
+    );
+
+    req.user = user;
+
+    next();
+};

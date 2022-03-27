@@ -23,7 +23,12 @@ function initial() {
                 userName: 'Mikhail',
                 email: 'urine89@mail.ru',
                 password: encryptedPassword,
-                posts: [{ text: 'Some post is going to be here!'}],
+                posts: [
+                    {
+                        text: 'Some post is going to be here!',
+                        creationDate: new Date()
+                    }
+                ],
                 creationDate: new Date(),
             }).save((err: unknown) => {
                 if (err) {

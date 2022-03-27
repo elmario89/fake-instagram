@@ -3,10 +3,18 @@ import {Schema} from 'mongoose';
 
 export interface iPost {
     text: string;
+    creationDate: Date;
 }
 
 export const PostSchema = new Schema<iPost>({
-    text: String
+    text: {
+        type: String,
+        required: true
+    },
+    creationDate: {
+        type: Date,
+        required: true
+    },
 });
 
-module.exports = mongoose.model('post', PostSchema);
+// module.exports = mongoose.model('post', PostSchema);
