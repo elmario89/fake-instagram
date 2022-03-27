@@ -1,9 +1,12 @@
+const mongoose = require('mongoose');
 import {Schema} from 'mongoose';
 
 export interface iPost {
     text: string;
 }
 
-module.exports = new Schema<iPost>({
+export const PostSchema = new Schema<iPost>({
     text: String
 });
+
+module.exports = mongoose.model('post', PostSchema);

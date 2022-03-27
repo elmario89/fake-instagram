@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
-import {iUserRequest} from "./login.middleware";
 import { Response } from 'express';
+import { iUserRequest } from '../interfaces/user-request.interface';
 
 module.exports = (req: iUserRequest, res: Response, next: () => void) => {
     const token =
@@ -11,7 +11,7 @@ module.exports = (req: iUserRequest, res: Response, next: () => void) => {
         return res.status(403).send("A token is required for authentication");
     }
     try {
-        req.user = jwt.verify(token, process.env.JWT_KEY);
+        req.user = jwt.verify(token, process.env.JWT_KEY)
     } catch (err) {
         return res.status(401).send("Invalid Token");
     }

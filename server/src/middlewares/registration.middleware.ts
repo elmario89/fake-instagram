@@ -1,15 +1,11 @@
+import {iUserRequest} from '../interfaces/user-request.interface';
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const users = require('../models/user.model');
 
-import UserViewModel from "../interfaces/add-user.interface";
-
-import { Request, Response } from 'express';
-import { iUser } from "../models/user.model";
-
-export interface iUserRequest extends Request {
-    user?: iUser;
-}
+import UserViewModel from '../interfaces/add-user.interface';
+import {  Response } from 'express';
 
 module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userName, email, password, posts } = req.body as UserViewModel;

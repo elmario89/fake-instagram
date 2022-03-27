@@ -1,10 +1,11 @@
 const mongoose = require('mongoose');
-const PostSchema = require('./post.model');
 import { Schema } from 'mongoose';
+import { PostSchema } from './post.model';
 
 import { iPost } from './post.model';
 
 export interface iUser {
+    _id?: string;
     userName: string;
     email: string;
     password: string;

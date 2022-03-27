@@ -7,7 +7,7 @@ const users = require('../models/user.model');
 import { Request, Response } from 'express';
 import iGetUserViewModel from "../interfaces/get-user-view-model.interface";
 
-export interface iUserRequest extends Request {
+interface iUserRequest extends Request {
     user: iGetUserViewModel
 }
 
