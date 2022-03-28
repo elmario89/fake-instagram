@@ -10,6 +10,7 @@ import iAddPost from '../interfaces/add-post.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 import { iPost } from '../models/post.model';
 import { iPostRequest } from '../interfaces/post-request.interface';
+import { iPostsRequest } from '../interfaces/posts-requests.interface';
 
 module.exports.add = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userName, userId, post } = req.body as iAddPost;
@@ -56,6 +57,18 @@ module.exports.get = async (req: iPostRequest, res: Response, next: () => void) 
     next();
 };
 
+module.exports.getAll = async (req: iPostsRequest, res: Response, next: () => void) => {
+    const { userName } = req.params;
+
+    const user = await users.findOne({ userName });
+    if (!user) {
+        return res.status(404).send('User does not exist.');
+    }
+
+    req.posts = user.posts;
+    next();
+};
+
 module.exports.delete = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userName, postId} = req.params;
 
@@ -80,6 +93,4 @@ module.exports.delete = async (req: iUserRequest, res: Response, next: () => voi
         console.log(err);
         return res.status(500).send('Something went wrong');
     }
-
-
 };
