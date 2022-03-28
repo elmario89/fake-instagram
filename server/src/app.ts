@@ -14,5 +14,6 @@ app.use(express.json());
 //routes
 require('./controllers/auth.controller')(app);
 require('./controllers/posts.contoller')(app);
+require('./controllers/image.controller')(app);
 
 module.exports = app;

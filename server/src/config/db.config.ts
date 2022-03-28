@@ -6,7 +6,7 @@ const config = {
     DB: "fakeig_db"
 };
 
-const MONGO_URI = `mongodb://${config.HOST}:${config.PORT}/${config.DB}`;
+export const MONGO_URI = `mongodb://${config.HOST}:${config.PORT}/${config.DB}`;
 
 exports.connect = () => {
     // Connecting to the database
