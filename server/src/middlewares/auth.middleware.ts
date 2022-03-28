@@ -42,12 +42,11 @@ module.exports.login = async (req: iUserRequest, res: Response, next: () => void
                 );
 
                 // user
-                const { userName, posts, _id, creationDate, token } = user;
+                const { userName, _id, creationDate, token } = user;
                 req.user = {
                     _id: _id,
                     userName: userName,
                     creationDate,
-                    posts,
                     token,
                 };
                 return next();
@@ -69,7 +68,7 @@ module.exports.registration = async (req: iUserRequest, res: Response, next: () 
 
     // check if user already exist
     // Validate if user exist in our database
-    const userExists = await users.findOne({ email });
+    const userExists = await users.findOne({$or:[{email}, {userName}] });
     if (userExists) {
         return res.status(409).send('User Already Exist. Please Login');
     }
@@ -82,7 +81,6 @@ module.exports.registration = async (req: iUserRequest, res: Response, next: () 
         userName,
         email: email.toLowerCase(), // sanitize: convert email to lowercase
         password: encryptedPassword,
-        posts,
         creationDate: new Date(),
     });
 

@@ -1,19 +1,26 @@
-import getUser from "../interfaces/get-user.interface";
+import getUser from '../interfaces/get-user.interface';
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const users = require('../models/user.model');
 
 import { Request, Response } from 'express';
-import iGetUserViewModel from "../interfaces/get-user-view-model.interface";
-import iAddPost from "../interfaces/add-post.interface";
-import { iUserRequest } from "../interfaces/user-request.interface";
+import iGetUserViewModel from '../interfaces/get-user-view-model.interface';
+import iAddPost from '../interfaces/add-post.interface';
+import { iUserRequest } from '../interfaces/user-request.interface';
+import { iPost } from '../models/post.model';
+import { iPostRequest } from '../interfaces/post-request.interface';
 
 module.exports.add = async (req: iUserRequest, res: Response, next: () => void) => {
-    const { userId, post } = req.body as iAddPost;
+    const { userName, userId, post } = req.body as iAddPost;
 
-    const { posts } = await users.findOne({ _id: userId });
-    const user = await users.findOneAndUpdate(
+    const user = await users.findOne({$and:[{userName}, {_id: userId}] })
+    if (!user) {
+        return res.status(404).send('User does not exist.');
+    }
+
+    const { posts } = user;
+    const updatedUser = await users.findOneAndUpdate(
         { _id: userId },
         {
             posts: [
@@ -27,14 +34,52 @@ module.exports.add = async (req: iUserRequest, res: Response, next: () => void) 
         { new: true }
     );
 
-    req.user = user;
+    req.user = updatedUser;
 
     next();
 };
 
-module.exports.get = async (req: iUserRequest, res: Response, next: () => void) => {
-    console.log('get');
-    console.log(req.params.userId);
-    console.log(req.params.postId);
+module.exports.get = async (req: iPostRequest, res: Response, next: () => void) => {
+    const { userName, postId} = req.params;
+
+    const user = await users.findOne({ userName });
+    if (!user) {
+        return res.status(404).send('User does not exist.');
+    }
+
+    const post = await user.posts.id(postId);
+    if (!post) {
+        return res.status(404).send('Post does not exist.');
+    }
+
+    req.post = post;
     next();
+};
+
+module.exports.delete = async (req: iUserRequest, res: Response, next: () => void) => {
+    const { userName, postId} = req.params;
+
+    const user = await users.findOne({ userName });
+    if (!user) {
+        return res.status(404).send('User does not exist.');
+    }
+
+    const post = await user.posts.id(postId);
+    if (!post) {
+        return res.status(404).send('Post does not exist.');
+    }
+
+    try {
+        await users.updateOne({ userName }, { $pull: { posts: { _id: postId }}});
+
+        const updatesUser = await users.findOne({ userName });
+        req.user = updatesUser;
+
+        next();
+    } catch(err) {
+        console.log(err);
+        return res.status(500).send('Something went wrong');
+    }
+
+
 };

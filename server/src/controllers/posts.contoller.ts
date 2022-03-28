@@ -4,6 +4,7 @@ const post = require('../middlewares/post.middleware');
 
 import { Application, Response, Request } from 'express';
 import iAddPost from "../interfaces/add-post.interface";
+import { iPostRequest } from '../interfaces/post-request.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 import { iPost } from '../models/post.model';
 import { iUser } from '../models/user.model';
@@ -17,9 +18,17 @@ module.exports = function(app: Application) {
         }
     });
 
-    app.get('/api/posts/:userId/:postId', [jwt, post.get], async (req: iUserRequest, res: Response) => {
+    app.get('/api/posts/:userName/:postId', [jwt, post.get], async (req: iPostRequest, res: Response) => {
         try {
-            return res.status(200).json({ post: 'hui'});
+            return res.status(200).json(req.post);
+        } catch (err) {
+            console.log(err);
+        }
+    });
+
+    app.delete('/api/posts/:userName/:postId', [jwt, post.delete], async (req: iUserRequest, res: Response) => {
+        try {
+            return res.status(200).json(req.user);
         } catch (err) {
             console.log(err);
         }
