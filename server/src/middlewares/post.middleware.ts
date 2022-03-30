@@ -6,19 +6,24 @@ const users = require('../models/user.model');
 
 import { Request, Response } from 'express';
 import iGetUserViewModel from '../interfaces/get-user-view-model.interface';
-import iAddPost from '../interfaces/add-post.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 import { iPost } from '../models/post.model';
 import { iPostRequest } from '../interfaces/post-request.interface';
 import { iPostsRequest } from '../interfaces/posts-requests.interface';
 
 module.exports.add = async (req: iUserRequest, res: Response, next: () => void) => {
-    const { userName, userId, post } = req.body as iAddPost;
+    const { userId, userName, title, description } = req.body;
+
+    if (req.file === undefined) {
+        return res.send('You must select a file.');
+    }
 
     const user = await users.findOne({$and:[{userName}, {_id: userId}] })
     if (!user) {
         return res.status(404).send('User does not exist.');
     }
+
+    const imageUrl = `http://localhost:3001/api/image/${req.file.filename}`;
 
     const { posts } = user;
     const updatedUser = await users.findOneAndUpdate(
@@ -27,8 +32,10 @@ module.exports.add = async (req: iUserRequest, res: Response, next: () => void) 
             posts: [
                 ...posts,
                 {
-                    ...post,
-                    creationDate: new Date()
+                    creationDate: new Date(),
+                    imageUrl,
+                    title,
+                    description
                 }
             ]
         },

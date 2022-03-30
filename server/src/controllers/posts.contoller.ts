@@ -1,20 +1,27 @@
 const jwt = require('../middlewares/jwt.middleware');
 const users = require('../models/user.model');
 const post = require('../middlewares/post.middleware');
+const upload = require('../middlewares/image-upload.middleware');
 
 import { Application, Response, Request } from 'express';
-import iAddPost from "../interfaces/add-post.interface";
 import { iPostRequest } from '../interfaces/post-request.interface';
 import { iPostsRequest } from '../interfaces/posts-requests.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 import { iPost } from '../models/post.model';
 import { iUser } from '../models/user.model';
+const mongoose = require('mongoose');
+const Grid = require('gridfs-stream');
+
+interface iOpenDownloadStream {
+    openDownloadStream: (id: string) => NodeJS.ReadableStream;
+}
 
 module.exports = function(app: Application) {
-    app.post('/api/posts/add', [jwt, post.add], async (req: iUserRequest, res: Response) => {
+    app.post('/api/posts/add', [jwt, upload.single('file'), post.add], async (req: iUserRequest, res: Response) => {
         try {
-            return res.status(200).json(req.body);
-        } catch (err) {
+            return res.status(200).json(req.user);
+        }
+        catch (err) {
             console.log(err);
         }
     });

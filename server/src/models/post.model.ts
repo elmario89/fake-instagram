@@ -2,13 +2,19 @@ const mongoose = require('mongoose');
 import {Schema} from 'mongoose';
 
 export interface iPost {
-    text: string;
+    title: string;
+    description: string;
     creationDate: Date;
     _id: string;
+    imageUrl: string;
 }
 
 export const PostSchema = new Schema<iPost>({
-    text: {
+    title: {
+        type: String,
+        required: true
+    },
+    description: {
         type: String,
         required: true
     },
@@ -16,6 +22,8 @@ export const PostSchema = new Schema<iPost>({
         type: Date,
         required: true
     },
+    imageUrl: {
+        type: String,
+        required: true
+    }
 });
-
-// module.exports = mongoose.model('post', PostSchema);
