@@ -9,12 +9,6 @@ import { iPostsRequest } from '../interfaces/posts-requests.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 import { iPost } from '../models/post.model';
 import { iUser } from '../models/user.model';
-const mongoose = require('mongoose');
-const Grid = require('gridfs-stream');
-
-interface iOpenDownloadStream {
-    openDownloadStream: (id: string) => NodeJS.ReadableStream;
-}
 
 module.exports = function(app: Application) {
     app.post('/api/posts/add', [jwt, upload.single('file'), post.add], async (req: iUserRequest, res: Response) => {
