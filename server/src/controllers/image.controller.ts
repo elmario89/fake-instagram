@@ -13,20 +13,19 @@ interface iOpenDownloadStream {
 }
 
 module.exports = function(app: Application) {
-    // let gfs: typeof Grid;
-    // let gridfsBucket: iOpenDownloadStream;
-    //
-    // const conn = mongoose.connection;
-    //
-    // conn.once('open', () => {
-    //     //Init Stream
-    //     console.log('init gfs again')
-    //     gridfsBucket = new mongoose.mongo.GridFSBucket(conn.db, {
-    //         bucketName: 'photos'
-    //     })
-    //     gfs = Grid(conn.db, mongoose.mongo);
-    //     gfs.collection('photos');
-    // })
+    app.post('/api/image/upload', [jwt, upload.single('file')], async (req: iUserRequest, res: Response) => {
+        try {
+            if (req.file === undefined) {
+                return res.send('You must select a file.');
+            }
+
+            const imgUrl = `http://localhost:3001/api/image/${req.file.filename}`;
+            return res.send(imgUrl);
+        }
+        catch (err) {
+            console.log(err);
+        }
+    });
 
     app.get('/api/image/:filename', jwt, async (req, res) => {
         try {
