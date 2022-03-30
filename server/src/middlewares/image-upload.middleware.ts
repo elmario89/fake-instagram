@@ -11,7 +11,7 @@ interface iFile {
 const storage = new GridFsStorage({
     url: MONGO_URI,
     options: { useNewUrlParser: true, useUnifiedTopology: true },
-    file: async (req: Request, file: iFile) => {
+    file: (req: Request, file: iFile) => {
         const match = ['image/png', 'image/jpeg', 'image/jpg'];
 
         if (match.indexOf(file.mimetype) === -1) {
