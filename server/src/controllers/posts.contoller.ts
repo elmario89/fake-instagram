@@ -1,5 +1,4 @@
 const jwt = require('../middlewares/jwt.middleware');
-const users = require('../models/user.model');
 const post = require('../middlewares/post.middleware');
 const upload = require('../middlewares/image-upload.middleware');
 
@@ -22,7 +21,7 @@ module.exports = function(app: Application) {
 
     app.get('/api/posts/:userName/:postId', [jwt, post.get], async (req: iPostRequest, res: Response) => {
         try {
-            return res.status(200).json(req.post);
+            return res.status(200).json(req.response);
         } catch (err) {
             console.log(err);
         }
@@ -30,6 +29,7 @@ module.exports = function(app: Application) {
 
     app.get('/api/posts/:userName/', [jwt, post.getAll], async (req: iPostsRequest, res: Response) => {
         try {
+            console.log(req.posts);
             return res.status(200).json(req.posts);
         } catch (err) {
             console.log(err);

@@ -9,7 +9,7 @@ export interface iPost {
     imageUrl: string;
 }
 
-export const PostSchema = new Schema<iPost>({
+const postSchema = new Schema<iPost>({
     title: {
         type: String,
         required: true
@@ -27,3 +27,5 @@ export const PostSchema = new Schema<iPost>({
         required: true
     }
 });
+
+module.exports = mongoose.model('Post', postSchema);

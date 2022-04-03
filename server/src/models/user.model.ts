@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 import { Schema } from 'mongoose';
-import { PostSchema } from './post.model';
 
 import { iPost } from './post.model';
 
@@ -11,10 +10,7 @@ export interface iUser {
     password: string;
     token: string;
     creationDate: Date;
-    posts: {
-        type: iPost;
-        default: [];
-    };
+    posts: string[];
 }
 
 const UserSchema = new Schema<iUser>({
@@ -35,9 +31,7 @@ const UserSchema = new Schema<iUser>({
         required: true
     },
     token: String,
-    posts: {
-        type: [PostSchema]
-    }
+    posts: Array,
 });
 
 module.exports = mongoose.model('user', UserSchema);
