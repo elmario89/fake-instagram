@@ -12,11 +12,11 @@ import { iPostRequest } from '../interfaces/post-request.interface';
 import { iPostsRequest } from '../interfaces/posts-requests.interface';
 import { iUser } from '../models/user.model';
 import { iApp } from '../interfaces/core.interface';
-import { Express } from 'express';
+import { Express, NextFunction } from 'express';
 import getUser from '../interfaces/get-user.interface';
 const ObjectId = mongoose.Types.ObjectId
 
-module.exports.add = async (req: iUserRequest, res: Response, next: () => void) => {
+module.exports.add = async (req: iUserRequest, res: Response, next: NextFunction) => {
     const { userId, userName, title, description } = req.body;
 
     if (req.file === undefined) {
@@ -60,8 +60,44 @@ module.exports.add = async (req: iUserRequest, res: Response, next: () => void) 
     }
 };
 
-module.exports.get = async (req: iPostRequest, res: Response, next: () => void) => {
-    const { userName, postId} = req.params;
+module.exports.update = async (req: iPostRequest, res: Response, next: NextFunction) => {
+    const { userName, postId } = req.params;
+    const { title, description } = req.body;
+    console.log(title)
+
+    const user = await users.findOne({ userName });
+    if (!user) {
+        return res.status(404).send('User does not exist.');
+    }
+
+    if (user.posts.indexOf(postId) < 0) {
+        return res.status(404).send('Post does not exist.');
+    }
+
+    try {
+        const updatedPost = await postsDb.findByIdAndUpdate(
+            postId,
+            {
+                title,
+                description
+            },
+            { new: true }
+        )
+
+        req.response = {
+            userName: user.userName,
+            post: updatedPost
+        };
+
+        return next();
+    } catch(err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
+}
+
+module.exports.get = async (req: iPostRequest, res: Response, next: NextFunction) => {
+    const { userName, postId } = req.params;
 
     const user = await users.findOne({ userName });
     if (!user) {
@@ -87,7 +123,7 @@ module.exports.get = async (req: iPostRequest, res: Response, next: () => void) 
     }
 };
 
-module.exports.getAll = async (req: iPostsRequest, res: Response, next: () => void) => {
+module.exports.getAll = async (req: iPostsRequest, res: Response, next: NextFunction) => {
     const { userName } = req.params;
     const { count, page } = req.query;
 
@@ -113,7 +149,7 @@ module.exports.getAll = async (req: iPostsRequest, res: Response, next: () => vo
     }
 };
 
-module.exports.delete = (app: Express) => async (req: iUserRequest, res: Response, next: () => void) => {
+module.exports.delete = (app: Express) => async (req: iUserRequest, res: Response, next: NextFunction) => {
     const { userName, postId } = req.params;
 
     const user = await users.findOne({ userName });

@@ -21,6 +21,14 @@ class PostsContoller {
         }
     }
 
+    updatePost = async (req: iPostRequest, res: Response) => {
+        try {
+            return res.status(200).json(req.response);
+        } catch (err) {
+            console.log(err);
+        }
+    }
+
     getPosts = async (req: iPostsRequest, res: Response) => {
         try {
             return res.status(200).json(req.posts);
