@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const Grid = require('gridfs-stream');
 
 import { Application, Response } from 'express';
-import { iApp } from '../app';
+import { iApp } from '../interfaces/core.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 
 interface iOpenDownloadStream {
