@@ -7,6 +7,7 @@ export interface iPost {
     creationDate: Date;
     _id: string;
     imageUrl: string;
+    imageId: string;
 }
 
 const postSchema = new Schema<iPost>({
@@ -25,6 +26,10 @@ const postSchema = new Schema<iPost>({
     imageUrl: {
         type: String,
         required: true
+    },
+    imageId: {
+        type: String,
+        required: true,
     }
 });
 

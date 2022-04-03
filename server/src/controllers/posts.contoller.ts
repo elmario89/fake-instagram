@@ -36,7 +36,7 @@ module.exports = function(app: Application) {
         }
     });
 
-    app.delete('/api/posts/:userName/:postId', [jwt, post.delete], async (req: iUserRequest, res: Response) => {
+    app.delete('/api/posts/:userName/:postId', [jwt, post.delete(app)], async (req: iUserRequest, res: Response) => {
         try {
             return res.status(200).json(req.user);
         } catch (err) {

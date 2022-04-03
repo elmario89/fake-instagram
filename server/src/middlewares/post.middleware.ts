@@ -1,9 +1,8 @@
-import getUser from '../interfaces/get-user.interface';
-
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const users = require('../models/user.model');
-const postsDb= require('../models/post.model');
+const postsDb = require('../models/post.model');
+const mongoose = require('mongoose');
 
 import { Request, Response } from 'express';
 import iGetUserViewModel from '../interfaces/get-user-view-model.interface';
@@ -12,6 +11,10 @@ import { iPost } from '../models/post.model';
 import { iPostRequest } from '../interfaces/post-request.interface';
 import { iPostsRequest } from '../interfaces/posts-requests.interface';
 import { iUser } from '../models/user.model';
+import { iApp } from '../interfaces/core.interface';
+import { Express } from 'express';
+import getUser from '../interfaces/get-user.interface';
+const ObjectId = mongoose.Types.ObjectId
 
 module.exports.add = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userId, userName, title, description } = req.body;
@@ -32,6 +35,7 @@ module.exports.add = async (req: iUserRequest, res: Response, next: () => void) 
         description: 'hello from planet earth',
         creationDate: new Date(),
         imageUrl,
+        imageId: req.file.id
     });
 
     const { posts } = user;
@@ -93,8 +97,8 @@ module.exports.getAll = async (req: iPostsRequest, res: Response, next: () => vo
     next();
 };
 
-module.exports.delete = async (req: iUserRequest, res: Response, next: () => void) => {
-    const { userName, postId} = req.params;
+module.exports.delete = (app: Express) => async (req: iUserRequest, res: Response, next: () => void) => {
+    const { userName, postId } = req.params;
 
     const user = await users.findOne({ userName });
     if (!user) {
@@ -105,8 +109,14 @@ module.exports.delete = async (req: iUserRequest, res: Response, next: () => voi
         return res.status(404).send('Post does not exist.');
     }
 
+    //delete file from bucket
+    const post = await postsDb.findById(postId);
+    await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
+
+    //delete posts
     const updatedPosts = await postsDb.deleteOne({_id: postId});
 
+    //delete post id from user
     const { posts } = user;
     const updatedUser = await users.findOneAndUpdate(
         { userName },
