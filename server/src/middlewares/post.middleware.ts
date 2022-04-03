@@ -28,31 +28,36 @@ module.exports.add = async (req: iUserRequest, res: Response, next: () => void) 
         return res.status(404).send('User does not exist.');
     }
 
-    const imageUrl = `http://localhost:3001/api/image/${req.file.filename}`;
+    try {
+        const imageUrl = `http://localhost:3001/api/image/${req.file.filename}`;
 
-    const newPost = await postsDb.create({
-        title: 'test',
-        description: 'hello from planet earth',
-        creationDate: new Date(),
-        imageUrl,
-        imageId: req.file.id
-    });
+        const newPost = await postsDb.create({
+            title,
+            description,
+            creationDate: new Date(),
+            imageUrl,
+            imageId: req.file.id
+        });
 
-    const { posts } = user;
-    const updatedUser = await users.findOneAndUpdate(
-        { _id: userId },
-        {
-            posts: [
-                ...posts,
-                newPost.id,
-            ]
-        },
-        { new: true }
-    );
+        const { posts } = user;
+        const updatedUser = await users.findOneAndUpdate(
+            { _id: userId },
+            {
+                posts: [
+                    ...posts,
+                    newPost.id,
+                ]
+            },
+            { new: true }
+        );
 
-    req.user = updatedUser;
+        req.user = updatedUser;
 
-    next();
+        next();
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 };
 
 module.exports.get = async (req: iPostRequest, res: Response, next: () => void) => {
@@ -67,13 +72,19 @@ module.exports.get = async (req: iPostRequest, res: Response, next: () => void) 
         return res.status(404).send('Post does not exist.');
     }
 
-    const post = await postsDb.findById(postId);
+    try {
+        const post = await postsDb.findById(postId);
 
-    req.response = {
-        userName: user.userName,
-        post
-    };
-    next();
+        req.response = {
+            userName: user.userName,
+            post
+        };
+
+        return next();
+    } catch (err) {
+        console.log(err);
+        return res.status(500).send(err);
+    }
 };
 
 module.exports.getAll = async (req: iPostsRequest, res: Response, next: () => void) => {
@@ -85,16 +96,21 @@ module.exports.getAll = async (req: iPostsRequest, res: Response, next: () => vo
         return res.status(404).send('User does not exist.');
     }
 
-    const posts = await postsDb.find()
-        .where('_id')
-        .skip(Number(count) * Number(page))
-        .limit(count)
-        .in(user.posts)
-        .exec();
+    try {
+        const posts = await postsDb.find()
+            .where('_id')
+            .skip(Number(count) * Number(page))
+            .limit(count)
+            .in(user.posts)
+            .exec();
 
-    req.posts = posts;
+        req.posts = posts;
 
-    next();
+        next();
+    } catch (err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 };
 
 module.exports.delete = (app: Express) => async (req: iUserRequest, res: Response, next: () => void) => {
@@ -109,23 +125,29 @@ module.exports.delete = (app: Express) => async (req: iUserRequest, res: Respons
         return res.status(404).send('Post does not exist.');
     }
 
-    //delete file from bucket
-    const post = await postsDb.findById(postId);
-    await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
+    try {
+        //delete file from bucket
+        const post = await postsDb.findById(postId);
+        await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
 
-    //delete posts
-    const updatedPosts = await postsDb.deleteOne({_id: postId});
+        //delete posts
+        const updatedPosts = await postsDb.deleteOne({_id: postId});
 
-    //delete post id from user
-    const { posts } = user;
-    const updatedUser = await users.findOneAndUpdate(
-        { userName },
-        {
-            posts: posts.filter((id: string) => id !== postId)
-        },
-        { new: true }
-    );
+        //delete post id from user
+        const { posts } = user;
+        const updatedUser = await users.findOneAndUpdate(
+            { userName },
+            {
+                posts: posts.filter((id: string) => id !== postId)
+            },
+            { new: true }
+        );
 
-    req.user = updatedUser;
-    next();
+        req.user = updatedUser;
+
+        return next();
+    } catch(err) {
+        console.log(err);
+        res.status(500).send(err);
+    }
 };

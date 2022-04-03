@@ -1,41 +1,43 @@
 const http = require('http');
-const app = require('./app');
 const bcrypt = require('bcryptjs');
 const User = require('./models/user.model');
+const postsRouter = require('./routers/posts.router');
+const authRouter = require('./routers/auth.router');
+const imageRouter = require('./routers/image.router');
 
 const port = process.env.PORT || 3001;
 require('dotenv').config();
+
+const cors = require('cors');
+const bodyParser = require('body-parser');
+
+import express from 'express';
+
+require('./config/db.config').connect();
+
+const corsOptions = {
+    origin: "*"
+};
+
+const app = express();
+
+app.use(cors(corsOptions));
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+//initialize photos bucket
+require('./models/photos.model')(app);
+
+//routes
+app.use('/api', postsRouter(app));
+app.use('/api', authRouter())
+app.use('/api', imageRouter(app))
 
 const server = http.createServer(app);
 
 // server listening
 server.listen(port, () => {
     console.log(`Server running on port ${port}`);
-    // initial();
 });
 
-function initial() {
-    User.estimatedDocumentCount(async (err: Error, count: number) => {
-        if (!err && count === 0) {
-            const encryptedPassword = await bcrypt.hash('221221', 10);
-
-            new User({
-                userName: 'Mikhail',
-                email: 'urine89@mail.ru',
-                password: encryptedPassword,
-                posts: [
-                    {
-                        text: 'Some post is going to be here!',
-                        creationDate: new Date()
-                    }
-                ],
-                creationDate: new Date(),
-            }).save((err: unknown) => {
-                if (err) {
-                    console.log('error', err);
-                }
-                console.log('Added user with posts!');
-            });
-        }
-    });
-}
+module.exports = app;

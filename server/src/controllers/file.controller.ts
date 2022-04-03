@@ -12,8 +12,14 @@ interface iOpenDownloadStream {
     openDownloadStream: (id: string) => NodeJS.ReadableStream;
 }
 
-module.exports = function(app: Application) {
-    app.post('/api/image/upload', [jwt, upload.single('file')], async (req: iUserRequest, res: Response) => {
+class AuthController {
+    private app: Application;
+
+    constructor(app: Application) {
+        this.app = app;
+    }
+
+    uploadFile = async (req: iUserRequest, res: Response) => {
         try {
             if (req.file === undefined) {
                 return res.send('You must select a file.');
@@ -25,26 +31,31 @@ module.exports = function(app: Application) {
         catch (err) {
             console.log(err);
         }
-    });
+    }
 
-    app.get('/api/image/:filename', jwt, async (req, res) => {
+    getFile = async (req: iUserRequest, res: Response) => {
         try {
-            const file = await (app as iApp).gfs.files.findOne({ filename: req.params.filename });
-            const readStream = (app as iApp).gridfsBucket.openDownloadStream(file._id);
+            const file = await (this.app as iApp).gfs.files.findOne({ filename: req.params.filename });
+            if (!file) {
+                return res.status(400).send('File not found');
+            }
+            const readStream = (this.app as iApp).gridfsBucket.openDownloadStream(file._id);
             readStream.pipe(res);
         } catch (error) {
             console.log(error);
-            res.send('not found');
+            res.status(500).send('Oops somethign went wrong');
         }
-    });
+    }
 
-    app.delete('/api/image/:filename', jwt, async (req, res) => {
+    deleteFile = async (req: iUserRequest, res: Response) => {
         try {
-            await (app as iApp).gfs.files.deleteOne({ filename: req.params.filename });
+            await (this.app as iApp).gfs.files.deleteOne({ filename: req.params.filename });
             res.send('success');
         } catch (error) {
             console.log(error);
             res.send('An error occured.');
         }
-    });
+    }
 }
+
+module.exports = AuthController;

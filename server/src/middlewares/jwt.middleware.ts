@@ -10,10 +10,11 @@ module.exports = (req: iUserRequest, res: Response, next: () => void) => {
     if (!token) {
         return res.status(403).send("A token is required for authentication");
     }
+
     try {
         req.user = jwt.verify(token, process.env.JWT_KEY)
+        return next();
     } catch (err) {
         return res.status(401).send("Invalid Token");
     }
-    return next();
 };
