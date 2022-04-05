@@ -8,8 +8,9 @@ import { iApp } from "../interfaces/core.interface";
 const ObjectId = mongoose.Types.ObjectId
 
 interface iUserParams {
-    userName: string;
+    userId: string;
     postId: string;
+    userName?: string;
 }
 
 interface iUserQuery {
@@ -18,17 +19,38 @@ interface iUserQuery {
 }
 
 class PostService {
+    private checkIfUserExists = async (userId?: string, postId?: string, userName?: string) => {
+        let user;
+
+        if (userName) {
+            user = await users.findOne({ userName })
+            if (!user) {
+                throw new Error('User does not exist.');
+            }
+        }
+
+        if (userId) {
+            user = await users.findById(userId);
+            if (!user) {
+                throw new Error('User does not exist.');
+            }
+        }
+
+        if (postId && user.posts.indexOf(postId) < 0) {
+            throw new Error('Post does not exist.');
+        }
+
+        return user;
+    }
+
      add = async (post: iPost, file: Express.Multer.File) => {
         if (file === undefined) {
-            return new Error('You must select a file.');
+            throw new Error('You must select a file.');
         }
 
-        const { userId, userName, title, description } = post;
+        const { userId, title, description } = post;
 
-        const user = await users.findOne({$and:[{ userName }, { _id: userId }] })
-        if (!user) {
-            return new Error('User does not exist.');
-        }
+        const user = await this.checkIfUserExists(userId);
 
         try {
             const imageUrl = `http://localhost:3001/api/image/${file.filename}`;
@@ -53,27 +75,17 @@ class PostService {
                 { new: true }
             );
 
-            return {
-                post: newPost,
-                userName: updatedUser.userName
-            };
+            return newPost;
         } catch (err) {
-            return new Error(err as string);
+            throw new Error(err as string);
         }
     };
 
      update = async (params: iUserParams, post: iPost) => {
-        const { userName, postId } = params;
+        const { userId, postId, userName } = params;
         const { title, description } = post;
 
-        const user = await users.findOne({ userName });
-        if (!user) {
-            return new Error('User does not exist.');
-        }
-
-        if (user.posts.indexOf(postId) < 0) {
-            return new Error('User does not exist.');
-        }
+        const user = await this.checkIfUserExists(userId, postId, userName);
 
         try {
             const updatedPost = await postsDb.findByIdAndUpdate(
@@ -90,21 +102,14 @@ class PostService {
                 post: updatedPost
             };
         } catch(err) {
-            return new Error('User does not exist.');
+            throw new Error('User does not exist.');
         }
     }
 
      get = async (params: iUserParams) => {
-        const { userName, postId } = params;
+        const { postId, userName } = params;
 
-        const user = await users.findOne({ userName });
-        if (!user) {
-            return new Error('User does not exist.');
-        }
-
-        if (user.posts.indexOf(postId) < 0) {
-            return new Error('Post does not exist.');
-        }
+        const user = await this.checkIfUserExists(undefined, postId, userName);
 
         try {
             const post = await postsDb.findById(postId);
@@ -114,7 +119,7 @@ class PostService {
                 post
             };
         } catch (err) {
-            return new Error(err as string);
+            throw new Error(err as string);
         }
     };
 
@@ -122,10 +127,7 @@ class PostService {
         const { userName } = params;
         const { count, page } = query;
 
-        const user = await users.findOne({ userName });
-        if (!user) {
-            return new Error('User does not exist.');
-        }
+        const user = await this.checkIfUserExists(undefined, undefined, userName);
 
         try {
             const posts = await postsDb.find()
@@ -137,44 +139,40 @@ class PostService {
 
             return posts;
         } catch (err) {
-            return new Error(err as string);
+            throw new Error(err as string);
         }
     };
 
      delete = async (params: iUserParams, app: Application) => {
-        const { userName, postId } = params;
+        const { userId, postId, userName } = params;
 
-        const user = await users.findOne({ userName });
-        if (!user) {
-            return new Error('User does not exist.');
-        }
+        const user = await this.checkIfUserExists(userId, postId, userName);
+        console.log(userId);
 
-        if (user.posts.indexOf(postId) < 0) {
-            return new Error('Post does not exist.');
-        }
-
-        try {
-            //delete file from bucket
-            const post = await postsDb.findById(postId);
-            await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
-
-            //delete posts
-            await postsDb.findByIdAndDelete(postId);
-
-            //delete post id from user
-            const { posts } = user;
-            const updatedUser = await users.findOneAndUpdate(
-                { userName },
-                {
-                    posts: posts.filter((id: string) => id !== postId)
-                },
-                { new: true }
-            );
-
-            return updatedUser;
-        } catch(err) {
-            return new Error(err as string);
-        }
+        // try {
+        //     //delete file from bucket
+        //     const post = await postsDb.findById(postId);
+        //     await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
+        //
+        //     //delete posts
+        //     await postsDb.findByIdAndDelete(postId);
+        //
+        //     //delete post id from user
+        //     const { posts } = user;
+        //     const updatedUser = await users.findOneAndUpdate(
+        //         { _id: userId },
+        //         {
+        //             posts: posts.filter((id: string) => id !== postId)
+        //         },
+        //         { new: true }
+        //     );
+        //
+        //     console.log(updatedUser);
+        //     debugger;
+        //     return updatedUser;
+        // } catch(err) {
+        //     throw new Error(err as string);
+        // }
     };
 }
 

@@ -1,61 +1,50 @@
-const auth = require('../middlewares/auth.middleware');
-const jwt = require('../middlewares/jwt.middleware');
-const upload = require('../middlewares/image-upload.middleware');
-const mongoose = require('mongoose');
-const Grid = require('gridfs-stream');
+const FileService = require('../services/file.service');
 
-import { Application, Response } from 'express';
+import { Application, Response, Request } from 'express';
 import { iApp } from '../interfaces/core.interface';
-import { iUserRequest } from '../interfaces/user-request.interface';
 
 interface iOpenDownloadStream {
     openDownloadStream: (id: string) => NodeJS.ReadableStream;
 }
 
-class AuthController {
-    private app: Application;
+class FileController {
+    private fileService: typeof FileService;
 
-    constructor(app: Application) {
-        this.app = app;
+    constructor(private readonly app: Application) {
+        this.fileService = new FileService(this.app);
     }
 
-    uploadFile = async (req: iUserRequest, res: Response) => {
+    uploadFile = async (req: Request, res: Response) => {
         try {
-            if (req.file === undefined) {
-                return res.send('You must select a file.');
-            }
-
-            const imgUrl = `http://localhost:3001/api/image/${req.file.filename}`;
-            return res.send(imgUrl);
+            const imgUrl = await this.fileService.uploadFile(req.file)
+            return res.status(200).send(imgUrl);
         }
         catch (err) {
             console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 
-    getFile = async (req: iUserRequest, res: Response) => {
+    getFile = async (req: Request, res: Response) => {
         try {
-            const file = await (this.app as iApp).gfs.files.findOne({ filename: req.params.filename });
-            if (!file) {
-                return res.status(400).send('File not found');
-            }
-            const readStream = (this.app as iApp).gridfsBucket.openDownloadStream(file._id);
+            const readStream = await this.fileService.getFile(req.params.filename);
             readStream.pipe(res);
-        } catch (error) {
-            console.log(error);
-            res.status(500).send('Oops somethign went wrong');
+        } catch (err) {
+            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 
-    deleteFile = async (req: iUserRequest, res: Response) => {
+    deleteFile = async (req: Request, res: Response) => {
         try {
-            await (this.app as iApp).gfs.files.deleteOne({ filename: req.params.filename });
-            res.send('success');
-        } catch (error) {
-            console.log(error);
-            res.send('An error occured.');
+            const { id } = req.params;
+            await this.fileService.deleteFile(id);
+            res.status(200).send(id);
+        } catch (err) {
+            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 }
 
-module.exports = AuthController;
+module.exports = FileController;

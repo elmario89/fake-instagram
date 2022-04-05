@@ -13,7 +13,7 @@ module.exports = (app: Application) => {
 
     router.post('/image/upload', [jwt, upload.single('file')], fileController.uploadFile);
     router.get('/image/:filename', jwt, fileController.getFile);
-    router.delete('/image/:filename', jwt, fileController.deleteFile);
+    router.delete('/image/:id', jwt, fileController.deleteFile);
 
     return router;
 };

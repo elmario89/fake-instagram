@@ -14,7 +14,7 @@ class PostsContoller {
             return res.status(200).json(newPost);
         }
         catch (err) {
-            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 
@@ -23,7 +23,7 @@ class PostsContoller {
             const post = await PostService.get(req.params);
             return res.status(200).json(post);
         } catch (err) {
-            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 

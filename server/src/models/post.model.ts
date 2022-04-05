@@ -9,7 +9,7 @@ export interface iPost {
     imageUrl: string;
     imageId: string;
     userName?: string;
-    userId?: string;
+    userId: string;
 }
 
 const postSchema = new Schema<iPost>({
