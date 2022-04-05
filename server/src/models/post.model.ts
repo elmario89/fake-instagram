@@ -8,6 +8,8 @@ export interface iPost {
     _id: string;
     imageUrl: string;
     imageId: string;
+    userName?: string;
+    userId?: string;
 }
 
 const postSchema = new Schema<iPost>({

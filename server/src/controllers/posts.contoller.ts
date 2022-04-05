@@ -1,12 +1,17 @@
+const PostService = require('../services/post.service');
+
 import { Application, Response, Request } from 'express';
 import { iPostRequest } from '../interfaces/post-request.interface';
 import { iPostsRequest } from '../interfaces/posts-requests.interface';
 import { iUserRequest } from '../interfaces/user-request.interface';
 
 class PostsContoller {
-    addPost = async (req: iUserRequest, res: Response) => {
+    constructor(private readonly app: Application) { }
+
+    addPost = async (req: iPostRequest, res: Response) => {
         try {
-            return res.status(200).json(req.user);
+            const newPost = await PostService.add(req.body, req.file);
+            return res.status(200).json(newPost);
         }
         catch (err) {
             console.log(err);
@@ -15,7 +20,8 @@ class PostsContoller {
 
     getPost = async (req: iPostRequest, res: Response) => {
         try {
-            return res.status(200).json(req.response);
+            const post = await PostService.get(req.params);
+            return res.status(200).json(post);
         } catch (err) {
             console.log(err);
         }
@@ -23,7 +29,8 @@ class PostsContoller {
 
     updatePost = async (req: iPostRequest, res: Response) => {
         try {
-            return res.status(200).json(req.response);
+            const updatedPost = await PostService.update(req.params, req.body);
+            return res.status(200).json(updatedPost);
         } catch (err) {
             console.log(err);
         }
@@ -31,7 +38,8 @@ class PostsContoller {
 
     getPosts = async (req: iPostsRequest, res: Response) => {
         try {
-            return res.status(200).json(req.posts);
+            const posts = await PostService.getAll(req.params, req.query);
+            return res.status(200).json(posts);
         } catch (err) {
             console.log(err);
         }
@@ -39,11 +47,12 @@ class PostsContoller {
 
     deletePost = async (req: iUserRequest, res: Response) => {
         try {
-            return res.status(200).json(req.user);
+            const user = await PostService.delete(req.params, this.app);
+            return res.status(200).json(user);
         } catch (err) {
             console.log(err);
         }
     }
 }
 
-module.exports = new PostsContoller();
+module.exports = PostsContoller;
