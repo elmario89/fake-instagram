@@ -10,7 +10,7 @@ const ObjectId = mongoose.Types.ObjectId
 interface iUserParams {
     userId: string;
     postId: string;
-    userName?: string;
+    userName: string;
 }
 
 interface iUserQuery {

@@ -20,7 +20,6 @@ module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
     }
 
     try {
-
         const user = await users.findById(userId);
         const decodedToken = await jwt.verify(token, process.env.JWT_KEY);
         const { password, _id } = decodedToken;
