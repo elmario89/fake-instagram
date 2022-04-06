@@ -16,7 +16,7 @@ module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
     const { userId } = req.body;
 
     if (!userId) {
-        return res.status(403).send("An userId is required for using this message");
+        return res.status(403).send("An userId is required for using this method");
     }
 
     try {

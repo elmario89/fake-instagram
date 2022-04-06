@@ -47,7 +47,7 @@ class PostsContoller {
 
     deletePost = async (req: iUserRequest, res: Response) => {
         try {
-            const user = await PostService.delete(req.params, this.app);
+            const user = await PostService.delete(req.params, req.body.userId, this.app);
             return res.status(200).json(user);
         } catch (err) {
             return res.status(500).send((err as Error).message);

@@ -19,25 +19,11 @@ interface iUserQuery {
 }
 
 class PostService {
-    private checkIfUserExists = async (userId?: string, postId?: string, userName?: string) => {
-        let user;
+    private getUser = async (userId: string) => {
+        const user = await users.findById(userId);
 
-        if (userName) {
-            user = await users.findOne({ userName })
-            if (!user) {
-                throw new Error('User does not exist.');
-            }
-        }
-
-        if (userId) {
-            user = await users.findById(userId);
-            if (!user) {
-                throw new Error('User does not exist.');
-            }
-        }
-
-        if (postId && user.posts.indexOf(postId) < 0) {
-            throw new Error('Post does not exist.');
+        if (!user) {
+            throw new Error('User not found');
         }
 
         return user;
@@ -50,7 +36,7 @@ class PostService {
 
         const { userId, title, description } = post;
 
-        const user = await this.checkIfUserExists(userId);
+        const user = await this.getUser(userId);
 
         try {
             const imageUrl = `http://localhost:3001/api/image/${file.filename}`;
@@ -82,10 +68,11 @@ class PostService {
     };
 
      update = async (params: iUserParams, post: iPost) => {
-        const { userId, postId, userName } = params;
+        const { postId } = params;
+        const { userId } = post;
         const { title, description } = post;
 
-        const user = await this.checkIfUserExists(userId, postId, userName);
+        const user = await this.getUser(userId);
 
         try {
             const updatedPost = await postsDb.findByIdAndUpdate(
@@ -102,20 +89,18 @@ class PostService {
                 post: updatedPost
             };
         } catch(err) {
-            throw new Error('User does not exist.');
+            throw new Error(err as string);
         }
     }
 
      get = async (params: iUserParams) => {
         const { postId, userName } = params;
 
-        const user = await this.checkIfUserExists(undefined, postId, userName);
-
         try {
             const post = await postsDb.findById(postId);
 
             return {
-                userName: user.userName,
+                // userName: user.userName,
                 post
             };
         } catch (err) {
@@ -127,8 +112,7 @@ class PostService {
         const { userName } = params;
         const { count, page } = query;
 
-        const user = await this.checkIfUserExists(undefined, undefined, userName);
-
+        const user = await users.findOne({ userName });
         try {
             const posts = await postsDb.find()
                 .where('_id')
@@ -143,10 +127,9 @@ class PostService {
         }
     };
 
-     delete = async (params: iUserParams, app: Application) => {
-        const { userId, postId, userName } = params;
-
-        const user = await this.checkIfUserExists(userId, postId, userName);
+     delete = async (params: iUserParams, userId: string, app: Application) => {
+        const { postId, userName } = params;
+        const user = await this.getUser(userId);
 
         try {
             //delete file from bucket
@@ -166,8 +149,6 @@ class PostService {
                 { new: true }
             );
 
-            console.log(updatedUser);
-            debugger;
             return updatedUser;
         } catch(err) {
             throw new Error(err as string);

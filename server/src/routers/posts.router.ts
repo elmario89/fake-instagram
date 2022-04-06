@@ -11,10 +11,10 @@ module.exports = (app: Application) => {
     const controller = new PostController(app);
 
     router.post('/posts/add', [jwt, upload.single('file')], controller.addPost);
-    router.put('/posts/:userName/:postId', [jwt, jwtAccess], controller.updatePost);
-    router.get('/posts/:userName/:postId', jwt, controller.getPost);
-    router.get('/posts/:userName/', jwt, controller.getPosts);
-    router.delete('/posts/:userName/:postId', jwt, controller.deletePost);
+    router.get('/posts/:postId', jwt, controller.getPost);
+    router.get('/posts/getAll/:userName', jwt, controller.getPosts);
+    router.put('/posts/:postId', [jwt, jwtAccess], controller.updatePost);
+    router.delete('/posts/:postId', [jwt, jwtAccess], controller.deletePost);
 
     return router;
 };
