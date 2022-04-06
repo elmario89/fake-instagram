@@ -12,7 +12,7 @@ module.exports = async (req: iUserRequest, res: Response, next: () => void) => {
     }
 
     try {
-        const decodedToken = await jwt.verify(token, process.env.JWT_KEY);
+        req.user = await jwt.verify(token, process.env.JWT_KEY);
         return next();
     } catch (err) {
         return res.status(401).send("Invalid Token");
