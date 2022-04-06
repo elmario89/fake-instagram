@@ -32,7 +32,7 @@ class PostsContoller {
             const updatedPost = await PostService.update(req.params, req.body);
             return res.status(200).json(updatedPost);
         } catch (err) {
-            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 
@@ -41,7 +41,7 @@ class PostsContoller {
             const posts = await PostService.getAll(req.params, req.query);
             return res.status(200).json(posts);
         } catch (err) {
-            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 
@@ -50,7 +50,7 @@ class PostsContoller {
             const user = await PostService.delete(req.params, this.app);
             return res.status(200).json(user);
         } catch (err) {
-            console.log(err);
+            return res.status(500).send((err as Error).message);
         }
     }
 }

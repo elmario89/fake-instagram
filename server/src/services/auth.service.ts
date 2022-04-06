@@ -28,7 +28,7 @@ class AuthService {
 
             // Create token
             user.token = jwt.sign(
-                { _id: user._id, email },
+                { _id: user._id, email, password: encryptedPassword },
                 process.env.JWT_KEY,
                 {
                     expiresIn: '24h',
@@ -55,7 +55,7 @@ class AuthService {
 
             if (user && isPasswordCorrect) {
                 user.token = jwt.sign(
-                    { _id: user._id, email },
+                    { _id: user._id, email, password: user.password },
                     process.env.JWT_KEY,
                     {
                         expiresIn: '24h',

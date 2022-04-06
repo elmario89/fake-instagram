@@ -147,32 +147,31 @@ class PostService {
         const { userId, postId, userName } = params;
 
         const user = await this.checkIfUserExists(userId, postId, userName);
-        console.log(userId);
 
-        // try {
-        //     //delete file from bucket
-        //     const post = await postsDb.findById(postId);
-        //     await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
-        //
-        //     //delete posts
-        //     await postsDb.findByIdAndDelete(postId);
-        //
-        //     //delete post id from user
-        //     const { posts } = user;
-        //     const updatedUser = await users.findOneAndUpdate(
-        //         { _id: userId },
-        //         {
-        //             posts: posts.filter((id: string) => id !== postId)
-        //         },
-        //         { new: true }
-        //     );
-        //
-        //     console.log(updatedUser);
-        //     debugger;
-        //     return updatedUser;
-        // } catch(err) {
-        //     throw new Error(err as string);
-        // }
+        try {
+            //delete file from bucket
+            const post = await postsDb.findById(postId);
+            await (app as iApp).gfs.files.deleteOne({ _id: new ObjectId(post.imageId) });
+
+            //delete posts
+            await postsDb.findByIdAndDelete(postId);
+
+            //delete post id from user
+            const { posts } = user;
+            const updatedUser = await users.findOneAndUpdate(
+                { _id: userId },
+                {
+                    posts: posts.filter((id: string) => id !== postId)
+                },
+                { new: true }
+            );
+
+            console.log(updatedUser);
+            debugger;
+            return updatedUser;
+        } catch(err) {
+            throw new Error(err as string);
+        }
     };
 }
 
