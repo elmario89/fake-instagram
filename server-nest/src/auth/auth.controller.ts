@@ -4,6 +4,7 @@ import { User } from '../users/users.model';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from '../users/dto/login-user.dto';
+import { Public } from '../decorators/public.decorator';
 
 @ApiTags('Authorization')
 @Controller('api/auth')
@@ -12,6 +13,7 @@ export class AuthController {
 
     @ApiOperation({ summary: "User login" })
     @ApiResponse({ status: 200, type: String })
+    @Public()
     @Post('/login')
     async login(@Body() dto: LoginUserDto) {
         try {
@@ -24,6 +26,7 @@ export class AuthController {
 
     @ApiOperation({ summary: "User registration" })
     @ApiResponse({ status: 200, type: String })
+    @Public()
     @Post('/registration')
     async registration(@Body() dto: CreateUserDto) {
         try {

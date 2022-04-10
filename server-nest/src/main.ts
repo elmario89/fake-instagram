@@ -1,10 +1,15 @@
-import { NestFactory } from "@nestjs/core";
+import { NestFactory, Reflector } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
+import { AuthGuard } from "./guards/auth.guard";
 
 async function start() {
     const PORT = process.env.PORT || 5000;
     const app = await NestFactory.create(AppModule);
+
+    // global guard that blocks requests without jwt
+    const reflector = app.get(Reflector);
+    app.useGlobalGuards(new AuthGuard(reflector));
 
     const config = new DocumentBuilder()
         .setTitle("Fake instagram")
