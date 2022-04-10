@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpException, HttpStatus, Param, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsService } from './posts.service';
@@ -42,10 +42,28 @@ export class PostsController {
             const post = await this.postsService.getPost(id);
 
             if (!post) {
-                throw new HttpException("User not found", HttpStatus.NOT_FOUND);
+                throw new HttpException("Post not found", HttpStatus.NOT_FOUND);
             }
 
             return post;
+        } catch (err) {
+            throw new HttpException(err.message, err.status);
+        }
+    }
+
+    @ApiOperation({ summary: "Delete single Post"})
+    @ApiResponse({ status: 200, type: String })
+    @Delete('/:id')
+    async deletePost(@Param('id') id: string) {
+
+        try {
+            const post = await this.postsService.deletePost(id);
+
+            if (!post) {
+                throw new HttpException("Post not found", HttpStatus.NOT_FOUND);
+            }
+
+            return id;
         } catch (err) {
             throw new HttpException(err.message, err.status);
         }

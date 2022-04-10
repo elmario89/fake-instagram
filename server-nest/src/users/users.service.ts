@@ -18,7 +18,11 @@ export class UsersService {
 
     async getAllUsers() {
         try {
-            const users = await this.userRepository.findAll();
+            const users = await this.userRepository.findAll({
+                attributes: {
+                    exclude: ['password', 'createdAt', 'updatedAt'],
+                }
+            });
             return users;
         } catch (err) {
             throw new Error(err.message);
@@ -27,7 +31,12 @@ export class UsersService {
 
     async getUser(id: string) {
         try {
-            const user = await this.userRepository.findOne({ where: { id }});
+            const user = await this.userRepository.findOne({
+                where: { id },
+                attributes: {
+                    exclude: ['password', 'createdAt', 'updatedAt'],
+                }
+            });
             return user;
         } catch (err) {
             throw new Error(err.message);

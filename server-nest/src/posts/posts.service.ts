@@ -44,8 +44,8 @@ export class PostsService {
 
     async deletePost(id: string) {
         try {
-            // const post = await this.postRepository.delete({ where: { id }});
-            // return post;
+            const post = await this.postRepository.destroy({ where: { id }});
+            return post;
         } catch (err) {
             throw new Error(err.message);
         }
