@@ -16,15 +16,15 @@ export class User extends Model<User, UserCreationAttrs> {
     id: string;
 
     @ApiProperty({ example: 'urine89@mail.ru', description: 'Unique email' })
-    @Column({ type: DataType.STRING, unique: true, allowNull: false})
+    @Column({ type: DataType.STRING, unique: true, allowNull: false })
     email: string;
 
     @ApiProperty({ example: '221221', description: 'Hashed password' })
-    @Column({ type: DataType.STRING, allowNull: false})
+    @Column({ type: DataType.STRING, allowNull: false })
     password: string;
 
     @ApiProperty({ example: 'elmario89', description: 'Unique user name' })
-    @Column({ type: DataType.STRING, unique: true, allowNull: false})
+    @Column({ type: DataType.STRING, unique: true, allowNull: false })
     userName: string;
 
     @ApiProperty({ example: "[{title: 'Post title', description: 'Post description'}]", description: 'Array of posts' })

@@ -51,8 +51,12 @@ export class AuthService {
         const { email, password } = dto;
 
         const user = await this.usersService.getUserByIdOrEmail(email);
-        const passwordEquals = await bcrypt.compare(dto.password, user.password);
 
+        if (!user) {
+            throw new UnauthorizedException({ message: 'Wrong email or password' });
+        }
+
+        const passwordEquals = await bcrypt.compare(dto.password, user.password);
         if (user && passwordEquals) {
             return user;
         }
