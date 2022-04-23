@@ -3,6 +3,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostsService } from './posts.service';
 import { Post as PostModel } from './posts.model';
+import { IsString } from 'class-validator';
+import { PostIdParamsDto } from './dto/post-id-params.dto';
 
 @ApiTags('Posts')
 @Controller('api/posts')
@@ -24,9 +26,9 @@ export class PostsController {
     @ApiOperation({ summary: "Get all Posts"})
     @ApiResponse({ status: 200, type: [PostModel] })
     @Get('getPostsById/:id')
-    async getAll(@Param('id') id: string) {
+    async getAll(@Param() params: PostIdParamsDto) {
         try {
-            const posts = await this.postsService.getPostsById(id);
+            const posts = await this.postsService.getPostsById(params.id);
             return posts;
         } catch (err) {
             throw new HttpException(err.message, HttpStatus.BAD_REQUEST)
@@ -36,10 +38,9 @@ export class PostsController {
     @ApiOperation({ summary: "Get single Post"})
     @ApiResponse({ status: 200, type: PostModel })
     @Get('/:id')
-    async getById(@Param('id') id: string) {
-
+    async getById(@Param() params: PostIdParamsDto) {
         try {
-            const post = await this.postsService.getPost(id);
+            const post = await this.postsService.getPost(params.id);
 
             if (!post) {
                 throw new HttpException("Post not found", HttpStatus.NOT_FOUND);
@@ -54,16 +55,15 @@ export class PostsController {
     @ApiOperation({ summary: "Delete single Post"})
     @ApiResponse({ status: 200, type: String })
     @Delete('/:id')
-    async deletePost(@Param('id') id: string) {
-
+    async deletePost(@Param() params: PostIdParamsDto) {
         try {
-            const post = await this.postsService.deletePost(id);
+            const post = await this.postsService.deletePost(params.id);
 
             if (!post) {
                 throw new HttpException("Post not found", HttpStatus.NOT_FOUND);
             }
 
-            return id;
+            return params.id;
         } catch (err) {
             throw new HttpException(err.message, err.status);
         }

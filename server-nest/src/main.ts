@@ -3,6 +3,7 @@ import { AppModule } from "./app.module";
 import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
 import { AuthGuard } from "./guards/auth.guard";
 import { JwtService } from "@nestjs/jwt";
+import { ValidationPipe } from "./pipes/validation.pipe";
 
 async function start() {
     const PORT = process.env.PORT || 5000;
@@ -12,6 +13,7 @@ async function start() {
     const reflector = app.get(Reflector);
     const jwtService = app.get(JwtService);
     app.useGlobalGuards(new AuthGuard(reflector, jwtService));
+    app.useGlobalPipes(new ValidationPipe())
 
     const config = new DocumentBuilder()
         .setTitle("Fake instagram")

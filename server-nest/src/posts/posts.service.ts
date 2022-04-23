@@ -21,7 +21,7 @@ export class PostsService {
         try {
             const posts = await this.postRepository.findAll({
                 where: {
-                    userId: id
+                    userId: id as string
                 },
                 attributes: {
                     exclude: ['userId', 'createdAt', 'updatedAt'],

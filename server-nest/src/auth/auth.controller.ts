@@ -1,5 +1,5 @@
 import {Body, Controller, HttpException, HttpStatus, Post } from '@nestjs/common';
-import {ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from '../users/users.model';
 import { CreateUserDto } from '../users/dto/create-user.dto';
 import { AuthService } from './auth.service';

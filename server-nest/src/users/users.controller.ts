@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UsersService } from './users.service';
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { User } from './users.model';
+import { UserIdParamsDto } from './dto/user-id-params.dto';
 
 @ApiTags('Users')
 @Controller('api/users')
@@ -33,12 +34,12 @@ export class UsersController {
         }
     }
 
-    @ApiOperation({ summary: "Get single Users"})
+    @ApiOperation({ summary: "Get single User"})
     @ApiResponse({ status: 200, type: User })
     @Get('/:id')
-    async get(@Param('id') id: string ) {
+    async get(@Param() params: UserIdParamsDto) {
         try {
-            const user = await this.usersService.getUser(id);
+            const user = await this.usersService.getUser(params.id);
 
             if (!user) {
                 throw new HttpException("User not found", HttpStatus.NOT_FOUND);
